@@ -1,0 +1,278 @@
+{#
+    personas.html → Muestra las cards de personas con CRUD completo.
+
+    Este archivo recibe desde main.py (pagina_personas):
+      - personas → lista de objetos Persona de la BD
+      - mensaje  → texto del mensaje flash (puede estar vacío)
+      - tipo_mensaje → "success" o "danger"
+
+    Cómo se usan en el HTML:
+      {{ variable }}          → imprime el valor de la variable
+      {% for p in personas %} → bucle sobre la lista
+      {% if condicion %}      → condicional
+#}
+{% extends "base.html" %}
+{% block title %}Personas — Mini Web{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <!-- ENCABEZADO -->
+    <div class="page-header">
+        <h2>Personas registradas</h2>
+        <!-- Botón que muestra/oculta el formulario de crear -->
+        <button class="btn btn-primary" onclick="toggleFormulario()">
+            + Agregar persona
+        </button>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         FORMULARIO DE CREAR (oculto por defecto)
+         action="/form/personas" → envía los datos a esa ruta en main.py
+         method="post" → usa el método POST
+         enctype="multipart/form-data" → necesario para subir archivos/imágenes
+    ════════════════════════════════════════════════════════ -->
+    <div id="formulario-crear" class="formulario" style="display:none;">
+        <h3>Nueva persona</h3>
+        <form action="/form/personas" method="post" enctype="multipart/form-data">
+
+            <!-- required → validación del navegador (front-end) -->
+            <!-- minlength, max → validación del navegador -->
+            <!-- Pydantic valida de nuevo en el servidor (back-end) -->
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" name="nombre" required minlength="2" maxlength="64"
+                       placeholder="Ej: Ana García">
+                <!-- name="nombre" → debe coincidir con Form(...) en main.py -->
+            </div>
+
+            <div class="form-group">
+                <label>Edad</label>
+                <input type="number" name="edad" required min="1" max="119"
+                       placeholder="Ej: 25">
+            </div>
+
+            <div class="form-group">
+                <label>Ciudad</label>
+                <input type="text" name="ciudad" required minlength="2" maxlength="64"
+                       placeholder="Ej: Bogotá">
+            </div>
+
+            <div class="form-group">
+                <label>Foto (opcional)</label>
+                <!-- type="file" → permite seleccionar un archivo -->
+                <!-- accept → solo muestra imágenes en el explorador de archivos -->
+                <input type="file" name="imagen" accept="image/*">
+                <!-- name="imagen" → coincide con UploadFile en main.py -->
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <button type="button" class="btn btn-secondary"
+                        onclick="toggleFormulario()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+
+    {# ═══════════════════════════════════════════════════════
+         CARDS DE PERSONAS
+         {% if personas %} → si la lista no está vacía
+         {% for p in personas %} → recorre cada persona
+         {{ p.nombre }} → imprime el atributo nombre del objeto
+    ════════════════════════════════════════════════════════ #}
+    {% if personas %}
+    <div class="cards-grid">
+        {% for p in personas %}
+        <div class="card">
+
+            <!-- IMAGEN: si tiene foto la muestra, si no muestra un emoji -->
+            {% if p.imagen_url %}
+                <img src="{{ p.imagen_url }}" alt="{{ p.nombre }}" class="card-img">
+            {% else %}
+                <div class="card-img-placeholder">👤</div>
+            {% endif %}
+
+            <!-- DATOS de la persona -->
+            <div class="card-body">
+                <h4 class="card-name">{{ p.nombre }}</h4>
+                <p class="card-info">📅 {{ p.edad }} años</p>
+                <p class="card-info">📍 {{ p.ciudad }}</p>
+                <span class="badge badge-{{ p.estado }}">{{ p.estado }}</span>
+            </div>
+
+            <!-- ACCIONES: botones de editar, foto y eliminar -->
+            <div class="card-actions">
+
+                {#
+                    Botón EDITAR → llama a la función abrirModalEditar() en app.js
+                    Le pasa el id, nombre, edad y ciudad de esta persona.
+                    data-id="{{ p.id }}" → guarda el id en el HTML para usarlo en JS
+                #}
+                <button class="btn btn-warning btn-sm"
+                        onclick="abrirModalEditar({{ p.id }}, '{{ p.nombre }}', {{ p.edad }}, '{{ p.ciudad }}')">
+                    ✏️ Editar
+                </button>
+
+                <!-- Botón FOTO → llama a abrirModalFoto() en app.js -->
+                <button class="btn btn-info btn-sm"
+                        onclick="abrirModalFoto({{ p.id }})">
+                    📷 Foto
+                </button>
+
+                <!--
+                    Botón ELIMINAR → llama a eliminarPersona() en app.js
+                    Le pasa el id y el nombre para mostrar en el confirm()
+                -->
+                <button class="btn btn-danger btn-sm"
+                        onclick="eliminarPersona({{ p.id }}, '{{ p.nombre }}')">
+                    🗑️ Eliminar
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Si la lista está vacía, muestra este mensaje -->
+    <div class="empty-state">
+        <p>No hay personas registradas aún.</p>
+        <button class="btn btn-primary" onclick="toggleFormulario()">
+            Agregar la primera
+        </button>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MODAL DE EDITAR
+     Un "modal" es una ventana emergente sobre la página.
+     Se muestra/oculta con JavaScript cambiando el display.
+════════════════════════════════════════════════════════════ -->
+<div id="modal-editar" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>Editar persona</h3>
+
+        <div class="form-group">
+            <label>Nombre</label>
+            <!-- id="edit-nombre" → el JS leerá este campo con document.getElementById -->
+            <input type="text" id="edit-nombre" minlength="2" maxlength="64">
+        </div>
+        <div class="form-group">
+            <label>Edad</label>
+            <input type="number" id="edit-edad" min="1" max="119">
+        </div>
+        <div class="form-group">
+            <label>Ciudad</label>
+            <input type="text" id="edit-ciudad" minlength="2" maxlength="64">
+        </div>
+
+        <div class="form-actions">
+            <!--
+                onclick="guardarEdicion()" → llama a esa función en app.js
+                que hace fetch() PATCH al endpoint /api/personas/{id}
+            -->
+            <button class="btn btn-primary" onclick="guardarEdicion()">Guardar</button>
+            <button class="btn btn-secondary" onclick="cerrarModal('modal-editar')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE FOTO -->
+<div id="modal-foto" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>Cambiar foto</h3>
+        <div class="form-group">
+            <!-- id="input-foto" → el JS leerá este archivo con document.getElementById -->
+            <input type="file" id="input-foto" accept="image/*">
+        </div>
+        <div class="form-actions">
+            <!-- onclick="subirFoto()" → llama a esa función en app.js -->
+            <button class="btn btn-primary" onclick="subirFoto()">Subir</button>
+            <button class="btn btn-secondary" onclick="cerrarModal('modal-foto')">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Fondo oscuro detrás del modal -->
+<div id="modal-overlay" class="modal-overlay" style="display:none;"
+     onclick="cerrarTodosModales()"></div>
+
+{% endblock %}
+
+
+<!--
+    ═══════════════════════════════════════════════════════════
+    JAVASCRIPT ESPECÍFICO DE ESTA PÁGINA
+    Se carga ADICIONAL al app.js global que ya está en base.html.
+    ═══════════════════════════════════════════════════════════
+-->
+{% block scripts %}
+<script>
+/*
+    Las funciones aquí están en esta página porque usan variables
+    del HTML de Jinja2 (como {% raw %}{{ p.id }}{% endraw %}).
+
+    Las funciones genéricas (fetch, modales) están en app.js.
+*/
+
+// Muestra u oculta el formulario de crear
+function toggleFormulario() {
+    const form = document.getElementById('formulario-crear');
+    // Si está oculto lo muestra, si está visible lo oculta
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+// Abre el modal de editar y llena los campos con los datos actuales
+// Recibe los datos actuales para mostrarlos en los inputs
+function abrirModalEditar(id, nombre, edad, ciudad) {
+    idActual = id;  // guarda el id para usarlo al guardar (variable en app.js)
+
+    // Llena los inputs del modal con los datos actuales de la persona
+    document.getElementById('edit-nombre').value = nombre;
+    document.getElementById('edit-edad').value   = edad;
+    document.getElementById('edit-ciudad').value = ciudad;
+
+    // Muestra el modal y el fondo oscuro
+    abrirModal('modal-editar');
+}
+
+// Abre el modal de foto
+function abrirModalFoto(id) {
+    idActual = id;
+    abrirModal('modal-foto');
+}
+
+// Llama a la API para eliminar (desactivar) la persona
+// Esta función está aquí y no en app.js porque necesita acceder a {% raw %}{{ p.id }}{% endraw %}
+async function eliminarPersona(id, nombre) {
+    // confirm() → muestra un diálogo de confirmación en el navegador
+    if (!confirm(`¿Desactivar a ${nombre}?`)) return;
+
+    /*
+        fetch() → hace una petición HTTP desde JavaScript al servidor
+        Sin fetch(), la única forma de enviar datos era con <form>.
+        Con fetch() podemos hacer PATCH y DELETE que los formularios no soportan.
+
+        Estructura de fetch():
+        fetch(URL, {
+            method: 'DELETE',          ← método HTTP
+            headers: {...},            ← cabeceras (tipo de contenido)
+            body: JSON.stringify(dato) ← datos a enviar (solo en POST/PATCH)
+        })
+        .then(respuesta => ...)        ← qué hacer con la respuesta
+    */
+    const respuesta = await fetch(`/api/personas/${id}`, {
+        method: 'DELETE'  // ← llama al endpoint DELETE /api/personas/{id} en main.py
+    });
+
+    if (respuesta.ok) {
+        // Si fue exitoso, recarga la página para mostrar los cambios
+        location.reload();
+    } else {
+        const error = await respuesta.json();
+        alert('Error: ' + error.detail);
+    }
+}
+</script>
+{% endblock %}

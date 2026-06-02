@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+{#
+    base.html → La plantilla MADRE de la que heredan todas las páginas.
+
+    ¿Cómo funciona la herencia en Jinja2?
+    ─────────────────────────────────────
+    Este archivo define el "esqueleto" HTML que comparten todas las páginas.
+    Cada página hija dice {% extends "base.html" %} al inicio y solo
+    necesita llenar los "bloques" vacíos ({% block %}).
+
+    Bloques definidos aquí:
+      - {% block title %} → el título de la pestaña del navegador
+      - {% block content %} → el contenido principal de la página
+      - {% block scripts %} → JavaScript específico de cada página
+#}
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {# {% block title %} → cada página puede cambiar el título #}
+    <title>{% block title %}Mini Web{% endblock %}</title>
+
+    <!--
+        CÓMO SE LLAMA EL CSS
+        ─────────────────────
+        Esta línea conecta el HTML con el archivo CSS.
+        /static/css/style.css → FastAPI sirve este archivo porque en main.py
+        pusimos: app.mount("/static", StaticFiles(directory="static"))
+
+        Así funciona:
+          1. El navegador pide /static/css/style.css
+          2. FastAPI busca el archivo en la carpeta static/css/style.css
+          3. Lo envía al navegador
+          4. El navegador aplica los estilos al HTML
+
+        Si el CSS no carga, la página se ve sin estilos (texto plano).
+    -->
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- ═══════════════════════ NAVBAR ═══════════════════════════ -->
+<!--
+    El navbar está en base.html para que aparezca en TODAS las páginas.
+    Las páginas hijas no necesitan repetirlo.
+-->
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="/" class="nav-logo">🌐 Mini Web</a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Inicio</a>
+            <a href="/personas" class="nav-link">Personas</a>
+            <!-- /docs → documentación automática de FastAPI (Swagger) -->
+            <a href="/docs" class="nav-link" target="_blank">API Docs</a>
+        </div>
+    </div>
+</nav>
+
+<!-- ═══════════════════ MENSAJE FLASH ════════════════════════ -->
+{#
+    El mensaje flash aparece cuando se completa una acción (crear, editar, etc.)
+    "mensaje" y "tipo_mensaje" los envía main.py en el TemplateResponse.
+
+    {% if mensaje %} → solo muestra el div si hay un mensaje
+    {{ mensaje }} → inserta el texto del mensaje
+    {{ tipo_mensaje }} → "success" (verde) o "danger" (rojo)
+#}
+{% if mensaje %}
+<div class="alert alert-{{ tipo_mensaje }}">
+    {{ mensaje }}
+</div>
+{% endif %}
+
+<!-- ═══════════════════ CONTENIDO PRINCIPAL ══════════════════ -->
+{#
+    {% block content %}{% endblock %} → espacio vacío que cada página llena.
+    Ejemplo: personas.html pone sus cards aquí.
+#}
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- ═══════════════════════ FOOTER ═══════════════════════════ -->
+<footer class="footer">
+    <p>Mini Web Project — FastAPI + Jinja2 + CSS + JavaScript</p>
+</footer>
+
+<!--
+    CÓMO SE LLAMA EL JAVASCRIPT
+    ────────────────────────────
+    Similar al CSS, esta línea conecta el HTML con el archivo JS.
+    Se pone AL FINAL del body (no en el head) para que el HTML cargue
+    primero y el JS pueda encontrar los elementos del DOM.
+
+    defer → el JS se ejecuta después de que el HTML termine de cargar.
+-->
+<script src="/static/js/app.js" defer></script>
+
+<!-- Scripts adicionales específicos de cada página -->
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

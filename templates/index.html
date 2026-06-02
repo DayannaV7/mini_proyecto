@@ -1,0 +1,50 @@
+{#
+    index.html → Página de inicio
+
+    {% extends "base.html" %} → hereda el navbar, footer y CSS de base.html.
+    Solo necesitamos definir los bloques que queremos llenar.
+#}
+{% extends "base.html" %}
+
+<!-- Cambia el título de la pestaña del navegador -->
+{% block title %}Inicio — Mini Web{% endblock %}
+
+<!-- Aquí va el contenido de esta página específica -->
+{% block content %}
+<div class="hero">
+    <h1>Bienvenido a Mini Web 👋</h1>
+    <p>Proyecto mínimo para entender FastAPI + HTML + CSS + JavaScript</p>
+    <a href="/personas" class="btn btn-primary">Ver personas</a>
+</div>
+
+<div class="info-grid">
+    <div class="info-card">
+        <h3>📋 Qué hace este proyecto</h3>
+        <ul>
+            <li>Crear personas (POST)</li>
+            <li>Ver personas (GET)</li>
+            <li>Editar personas (PATCH)</li>
+            <li>Desactivar personas (DELETE)</li>
+            <li>Subir imágenes</li>
+        </ul>
+    </div>
+    <div class="info-card">
+        <h3>🗂 Estructura de archivos</h3>
+        <ul>
+            <li><strong>main.py</strong> → rutas/endpoints</li>
+            <li><strong>models/</strong> → forma de los datos</li>
+            <li><strong>operations/</strong> → CRUD en la BD</li>
+            <li><strong>templates/</strong> → archivos HTML</li>
+            <li><strong>static/</strong> → CSS, JS, imágenes</li>
+        </ul>
+    </div>
+    <div class="info-card">
+        <h3>🔗 Rutas disponibles</h3>
+        <ul>
+            <li><a href="/personas">/personas</a> → página HTML</li>
+            <li><a href="/api/personas">/api/personas</a> → JSON</li>
+            <li><a href="/docs">/docs</a> → Swagger UI</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,409 @@
+/*
+═══════════════════════════════════════════════════════════════
+  style.css → Los estilos visuales de toda la página
+
+  ¿CÓMO FUNCIONA EL CSS?
+  ───────────────────────
+  CSS (Cascading Style Sheets) le dice al navegador cómo se
+  debe ver cada elemento HTML.
+
+  La sintaxis es:
+    selector {
+        propiedad: valor;
+    }
+
+  El "selector" apunta a un elemento HTML:
+    body        → selecciona la etiqueta <body>
+    .navbar     → selecciona elementos con class="navbar"
+    #titulo     → selecciona el elemento con id="titulo"
+    .card p     → selecciona <p> que estén dentro de .card
+
+  ¿CÓMO SE LLAMA DESDE EL HTML?
+  ───────────────────────────────
+  En base.html hay esta línea:
+    <link href="/static/css/style.css" rel="stylesheet">
+
+  El navegador descarga el CSS y lo aplica al HTML automáticamente.
+
+  ¿CÓMO SE APLICA AL HTML?
+  ──────────────────────────
+  En el HTML: <div class="card">
+  En el CSS:  .card { background: white; }
+  Resultado: ese div tendrá fondo blanco.
+
+═══════════════════════════════════════════════════════════════
+*/
+
+/* ─── VARIABLES CSS ───────────────────────────────────────────
+   Las variables permiten reutilizar colores y valores.
+   Se definen en :root (que apunta al elemento raíz <html>).
+   Se usan así: color: var(--color-primario);
+   Si cambias el valor aquí, cambia en todo el sitio.
+─────────────────────────────────────────────────────────────── */
+:root {
+    --color-primario:   #3b82f6;  /* azul */
+    --color-secundario: #64748b;  /* gris */
+    --color-exito:      #22c55e;  /* verde */
+    --color-peligro:    #ef4444;  /* rojo */
+    --color-fondo:      #f8fafc;  /* gris muy claro */
+    --color-texto:      #1e293b;  /* casi negro */
+    --color-borde:      #e2e8f0;  /* gris claro */
+    --radio-borde:      8px;      /* redondez de las esquinas */
+    --sombra:           0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* ─── RESET Y BASE ────────────────────────────────────────────
+   El navegador aplica estilos por defecto a algunos elementos.
+   Este "reset" los elimina para partir desde cero.
+─────────────────────────────────────────────────────────────── */
+* {
+    box-sizing: border-box;  /* el padding no agranda el elemento */
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif; /* fuente del texto */
+    background: var(--color-fondo);
+    color: var(--color-texto);
+    min-height: 100vh;     /* la página ocupa al menos toda la pantalla */
+    display: flex;
+    flex-direction: column; /* navbar arriba, contenido en medio, footer abajo */
+}
+
+/* ─── NAVBAR ──────────────────────────────────────────────────
+   La barra de navegación en la parte superior.
+   En el HTML: <nav class="navbar">
+─────────────────────────────────────────────────────────────── */
+.navbar {
+    background: #1e293b;     /* fondo oscuro */
+    padding: 0 2rem;
+    position: sticky;        /* se queda pegado arriba al hacer scroll */
+    top: 0;
+    z-index: 100;            /* aparece por encima de otros elementos */
+    box-shadow: var(--sombra);
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;          /* centra el contenido */
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* logo a la izquierda, links a la derecha */
+    height: 60px;
+}
+
+.nav-logo {
+    color: white;
+    text-decoration: none;   /* quita el subrayado del enlace */
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;             /* espacio entre los links */
+}
+
+.nav-link {
+    color: #94a3b8;          /* gris claro */
+    text-decoration: none;
+    transition: color 0.2s;  /* animación suave al pasar el mouse */
+}
+
+.nav-link:hover {
+    color: white;            /* al pasar el mouse se pone blanco */
+}
+
+/* ─── CONTENIDO PRINCIPAL ────────────────────────────────────
+   El espacio entre el navbar y el footer.
+   flex: 1 → ocupa todo el espacio disponible (el footer queda abajo)
+─────────────────────────────────────────────────────────────── */
+.main-content {
+    flex: 1;
+    padding: 2rem 1rem;
+}
+
+/* ─── CONTENEDOR ─────────────────────────────────────────────
+   Limita el ancho del contenido y lo centra.
+   En el HTML: <div class="container">
+─────────────────────────────────────────────────────────────── */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;          /* centra horizontalmente */
+    padding: 0 1rem;
+}
+
+/* ─── ALERTA FLASH ───────────────────────────────────────────
+   El mensaje que aparece brevemente al crear/editar.
+   En el HTML: <div class="alert alert-success">
+─────────────────────────────────────────────────────────────── */
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: var(--radio-borde);
+    margin: 1rem 2rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: #dcfce7;    /* verde claro */
+    color: #166534;         /* verde oscuro */
+    border-left: 4px solid var(--color-exito);
+}
+
+.alert-danger {
+    background: #fee2e2;    /* rojo claro */
+    color: #991b1b;         /* rojo oscuro */
+    border-left: 4px solid var(--color-peligro);
+}
+
+/* ─── ENCABEZADO DE PÁGINA ───────────────────────────────────*/
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h2 {
+    font-size: 1.75rem;
+    color: var(--color-texto);
+}
+
+/* ─── BOTONES ────────────────────────────────────────────────
+   .btn → estilos base de todos los botones
+   .btn-primary → azul (acciones principales)
+   .btn-warning → amarillo (editar)
+   .btn-danger  → rojo (eliminar)
+   .btn-sm      → botón pequeño
+─────────────────────────────────────────────────────────────── */
+.btn {
+    padding: 0.6rem 1.25rem;
+    border: none;
+    border-radius: var(--radio-borde);
+    cursor: pointer;         /* el cursor se vuelve manito */
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: opacity 0.2s, transform 0.1s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px); /* sube 1px al pasar el mouse */
+}
+
+.btn-primary   { background: var(--color-primario); color: white; }
+.btn-secondary { background: var(--color-secundario); color: white; }
+.btn-warning   { background: #f59e0b; color: white; }
+.btn-danger    { background: var(--color-peligro); color: white; }
+.btn-info      { background: #06b6d4; color: white; }
+.btn-sm        { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+
+/* ─── FORMULARIO ─────────────────────────────────────────────*/
+.formulario {
+    background: white;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-borde);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--sombra);
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;          /* el label ocupa su propia línea */
+    margin-bottom: 0.4rem;
+    font-weight: 500;
+    color: var(--color-secundario);
+}
+
+/* Estilos de los inputs, selects y textareas */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-borde);
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+
+/* Al hacer clic en el input (focus) cambia el borde a azul */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;           /* quita el borde feo del navegador */
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+/* ─── GRID DE CARDS ──────────────────────────────────────────
+   CSS Grid: divide el espacio en columnas automáticamente.
+   auto-fill → crea tantas columnas como quepan
+   minmax(280px, 1fr) → cada columna tiene mín 280px y máx 1 fracción
+─────────────────────────────────────────────────────────────── */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;             /* espacio entre cards */
+}
+
+/* ─── CARD ───────────────────────────────────────────────────*/
+.card {
+    background: white;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-borde);
+    overflow: hidden;        /* la imagen no se sale de la card */
+    box-shadow: var(--sombra);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Efecto al pasar el mouse */
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+/* Imagen de la card */
+.card-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;       /* recorta la imagen para que llene el espacio */
+}
+
+/* Placeholder cuando no hay imagen */
+.card-img-placeholder {
+    width: 100%;
+    height: 200px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+.card-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.card-info {
+    color: var(--color-secundario);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.card-actions {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--color-borde);
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* ─── BADGE (etiqueta de estado) ─────────────────────────────*/
+.badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 99px;     /* completamente redondeado */
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.badge-activo   { background: #dcfce7; color: #166534; }
+.badge-inactivo { background: #f1f5f9; color: #64748b; }
+
+/* ─── MODAL ──────────────────────────────────────────────────
+   Ventana emergente que aparece sobre la página.
+   position: fixed → se posiciona relativo a la ventana del navegador.
+   El JS lo muestra/oculta cambiando display: none ↔ flex
+─────────────────────────────────────────────────────────────── */
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* centra exactamente */
+    background: white;
+    border-radius: var(--radio-borde);
+    padding: 2rem;
+    z-index: 200;            /* aparece encima de todo */
+    min-width: 350px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+/* Fondo oscuro semitransparente detrás del modal */
+.modal-overlay {
+    position: fixed;
+    inset: 0;                /* cubre toda la pantalla */
+    background: rgba(0,0,0,0.5);
+    z-index: 150;
+}
+
+/* ─── HERO (página de inicio) ────────────────────────────────*/
+.hero {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: linear-gradient(135deg, #1e293b, #3b82f6);
+    color: white;
+    border-radius: var(--radio-borde);
+    margin-bottom: 2rem;
+}
+
+.hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+.hero p  { font-size: 1.15rem; margin-bottom: 2rem; opacity: 0.9; }
+
+/* ─── INFO GRID (página de inicio) ──────────────────────────*/
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.info-card {
+    background: white;
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-borde);
+    padding: 1.5rem;
+    box-shadow: var(--sombra);
+}
+
+.info-card h3 { margin-bottom: 1rem; }
+.info-card ul { padding-left: 1.25rem; }
+.info-card li { margin-bottom: 0.4rem; color: var(--color-secundario); }
+.info-card a  { color: var(--color-primario); }
+
+/* ─── ESTADO VACÍO ───────────────────────────────────────────*/
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--color-secundario);
+}
+
+.empty-state p { font-size: 1.1rem; margin-bottom: 1rem; }
+
+/* ─── FOOTER ─────────────────────────────────────────────────*/
+.footer {
+    background: #1e293b;
+    color: #94a3b8;
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 0.85rem;
+}
